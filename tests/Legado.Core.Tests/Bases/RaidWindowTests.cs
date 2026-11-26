@@ -62,29 +62,49 @@ public class RaidWindowTests
         Assert.False(w.IsOpen(new DateTimeOffset(2026, 1, 15, 13, 0, 0, TimeSpan.Zero)));
     }
 
-    // Fija el comportamiento actual (reloj de pared del clan); pendiente de decisión de diseño.
-    // 2026-03-29: a las 01:00Z el reloj salta de 02:00 a 03:00 (UTC+1 -> UTC+2).
-    // Ventana local 01:00-05:00 = 00:00Z-03:00Z, es decir, 3 horas reales.
+    // La ventana dura siempre 4 horas reales.
+    // 2026-03-29: a las 01:00Z el reloj salta de 02:00 a 03:00. Inicio 01:00 local = 00:00Z.
     [Fact]
-    public void SpringForward_Start01_WindowLastsThreeRealHours()
+    public void SpringForward_Start01_WindowLastsFourRealHours()
     {
         var w = new RaidWindow(TimeSpan.FromHours(1), Madrid);
         Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 28, 23, 59, 0, TimeSpan.Zero)));
         Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 0, 0, 0, TimeSpan.Zero)));
-        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 2, 59, 0, TimeSpan.Zero)));
-        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 29, 3, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 3, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 29, 4, 0, 0, TimeSpan.Zero)));
     }
 
-    // 2026-10-25: a las 01:00Z el reloj retrocede de 03:00 a 02:00 (UTC+2 -> UTC+1).
-    // Ventana local 01:00-05:00 = 23:00Z (día 24) - 04:00Z, es decir, 5 horas reales.
+    // 2026-10-25: a las 01:00Z el reloj retrocede de 03:00 a 02:00. Inicio 01:00 local = 23:00Z (día 24).
     [Fact]
-    public void FallBack_Start01_WindowLastsFiveRealHours()
+    public void FallBack_Start01_WindowLastsFourRealHours()
     {
         var w = new RaidWindow(TimeSpan.FromHours(1), Madrid);
         Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 24, 22, 59, 0, TimeSpan.Zero)));
         Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 24, 23, 0, 0, TimeSpan.Zero)));
-        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 25, 3, 59, 0, TimeSpan.Zero)));
-        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 25, 4, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 25, 2, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 25, 3, 0, 0, TimeSpan.Zero)));
+    }
+
+    // Hora local inexistente (02:30 el 2026-03-29): empieza en la primera hora válida, 03:00 CEST = 01:00Z.
+    [Fact]
+    public void SpringForward_StartInGap_StartsAtFirstValidTime()
+    {
+        var w = new RaidWindow(new TimeSpan(2, 30, 0), Madrid);
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 29, 0, 59, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 1, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 4, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 29, 5, 0, 0, TimeSpan.Zero)));
+    }
+
+    // Hora local ambigua (02:30 el 2026-10-25): primera aparición = 02:30 CEST = 00:30Z.
+    [Fact]
+    public void FallBack_StartInOverlap_UsesFirstOccurrence()
+    {
+        var w = new RaidWindow(new TimeSpan(2, 30, 0), Madrid);
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 25, 0, 29, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 25, 0, 30, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 25, 4, 29, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 25, 4, 30, 0, TimeSpan.Zero)));
     }
 
     [Fact]
