@@ -18,23 +18,23 @@
 - Nivel máximo: 80. Huecos de fruta: niveles 10, 30, 50, 70, 80 (máximo 5).
 - Rareza por zona: Mar de facción 100 % común; La Garganta 80 % común / 20 % infrecuente; Aguas Bravas 80 % infrecuente / 20 % rara; Mar del Rey Ahogado 80 % rara / 20 % mítica.
 - Cadáver PvE: 30 minutos. Penalización de renombre por muerte: 20 %.
-- Ventana de asalto: 4 horas, todos los días, inicio elegido por el clan.
+- Ventana de asalto: 4 horas, todos los días, inicio elegido por el clan **en la zona horaria del clan** (sigue los cambios de horario de verano).
+- Reinicio semanal de mazmorras: **miércoles 04:00 UTC**. Reinicio diario (recálculo de rangos de renombre): **04:00 UTC**.
+- Rangos de renombre por posición en el servidor: dorado el 1 % superior, morado hasta el 10 %, azul hasta el 25 %, verde hasta el 50 % y gris el resto.
+- Buzo con frutas: el oficio queda **congelado** (conserva su nivel, no se usa ni sube) y se reactiva al quedarse sin frutas.
 - Tripulación máxima: 12. Clan máximo: 60. Grupo de mazmorra máximo: 6. Oficios por personaje: 3.
 - Ganancia de profesión desconectado: 0,001 × ganancia activa.
-- Si una regla necesita un valor que el GDD no fija, **no se inventa**: se recibe como parámetro y se anota en "Huecos del GDD".
+- Si una regla necesita un valor que el GDD no fija, **no se inventa**: se pregunta a Nacho por medio del productor.
 
-## Huecos del GDD (preguntar a Nacho, no inventar)
+## Valores fijados por Nacho el 26-11-2026
 
-- Hora y día del reinicio semanal de mazmorras → parámetro `weeklyResetUtc` en la tarea 7.
-- Zona horaria en la que el clan define su ventana de asalto → la tarea 5 trabaja en UTC; el cliente convierte.
-- Umbrales de los cinco rangos de renombre → parámetro `int[] rankThresholds` en la tarea 4.
-- Un personaje con oficio buzo que come su primera fruta: ¿pierde el oficio o no puede comerla? → la tarea 8 solo valida la combinación (`IsValidCombination`) y no resuelve el conflicto.
+Los cuatro huecos que tenía este plan ya están decididos e integrados en las tareas 4, 5, 7 y 8: reinicio semanal, zona horaria de la ventana, rangos de renombre y buzo con frutas.
 
 ## Review Focus
 
 1. Niveles fuera de rango (0, -1, 81): se espera `ArgumentOutOfRangeException`, nunca 0 huecos silenciosos → tarea 1.
 2. Tirada de rareza en el borde (79 frente a 80) y tirada fuera de 0-99 → tarea 2.
-3. Ventana de asalto que cruza la medianoche (inicio 22:00 → fin 02:00) → tarea 5.
+3. Ventana de asalto que cruza la medianoche (inicio 22:00 → fin 02:00) y cambio al horario de verano → tarea 5.
 4. Jugador que entra en una tripulación de 12 sin ningún NPC que sustituir → tarea 6.
 5. Naufragio de un personaje desconectado: pierde también la fruta → tarea 3.
 
@@ -143,9 +143,12 @@ public void Shipwreck_loses_everything_including_fruits(bool online) {
 - Test: `tests/Legado.Core.Tests/Renown/RenownRulesTests.cs`
 
 **Interfaces:**
-- Produces: `static long RenownRules.AfterDeath(long renown)` (resta el 20 % y redondea hacia abajo); `static int RenownRules.Rank(long renown, int[] rankThresholds)` (devuelve 1-5; `rankThresholds` = 4 umbrales ascendentes que dan los rangos 2-5).
+- Produces: `static long RenownRules.AfterDeath(long renown)` (resta el 20 % y redondea hacia abajo). `enum RenownRank { Gray = 1, Green, Blue, Purple, Gold }`. `static RenownRank RenownRules.Rank(int position, int population)`: `position` 1 = más renombre del servidor; el porcentaje superior es `position / population` y da Gold si ≤ 1 %, Purple si ≤ 10 %, Blue si ≤ 25 %, Green si ≤ 50 % y Gray en el resto.
 
-- [ ] **Step 1: Tests que fallan**: `AfterDeath(1000) == 800`, `AfterDeath(999) == 799`, `AfterDeath(0) == 0`; `Rank(0, [100,200,300,400]) == 1`, `Rank(100, …) == 2`, `Rank(400, …) == 5`; `Rank` lanza `ArgumentException` si los umbrales no son 4 o no son ascendentes; `AfterDeath(-1)` lanza `ArgumentOutOfRangeException`.
+- [ ] **Step 1: Tests que fallan**:
+  - `AfterDeath(1000) == 800`, `AfterDeath(999) == 799`, `AfterDeath(0) == 0`; `AfterDeath(-1)` lanza `ArgumentOutOfRangeException`.
+  - Con `population = 1000`: posición 1 y 10 dan Gold; 11 y 100 dan Purple; 101 y 250 dan Blue; 251 y 500 dan Green; 501 y 1000 dan Gray.
+  - `Rank(0, 10)`, `Rank(11, 10)` y `Rank(1, 0)` lanzan `ArgumentOutOfRangeException`.
 - [ ] **Step 2: Ejecutar** → FAIL.
 - [ ] **Step 3: Implementar** con aritmética entera: `renown - renown / 5` no sirve para 999, así que usar `renown * 4 / 5`.
 - [ ] **Step 4: Ejecutar** → PASS.
@@ -158,11 +161,16 @@ public void Shipwreck_loses_everything_including_fruits(bool online) {
 - Test: `tests/Legado.Core.Tests/Bases/RaidWindowTests.cs`
 
 **Interfaces:**
-- Produces: `sealed class RaidWindow { RaidWindow(TimeSpan startUtc); static readonly TimeSpan Duration = TimeSpan.FromHours(4); bool IsOpen(DateTimeOffset now); }`. `startUtc` está entre 00:00 inclusive y 24:00 exclusive; fuera de ese rango lanza `ArgumentOutOfRangeException`.
+- Produces: `sealed class RaidWindow { RaidWindow(TimeSpan localStart, TimeZoneInfo clanTimeZone); static readonly TimeSpan Duration = TimeSpan.FromHours(4); bool IsOpen(DateTimeOffset now); }`. `localStart` es la hora de inicio en la zona horaria del clan, entre 00:00 inclusive y 24:00 exclusive; fuera de ese rango lanza `ArgumentOutOfRangeException`.
 
-- [ ] **Step 1: Tests que fallan**: con inicio 18:00 → abierta a las 18:00 y a las 21:59, cerrada a las 22:00 y a las 17:59. Con inicio 22:00 → abierta a las 23:30 y a la 01:59 del día siguiente, cerrada a las 02:00 y a las 21:00. Un `now` con offset +01:00 se evalúa por su instante UTC. `new RaidWindow(TimeSpan.FromHours(24))` lanza.
+- [ ] **Step 1: Tests que fallan** (zona `TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid")`):
+  - Inicio 20:00 en invierno: abierta a las `2026-01-15T19:00Z` (20:00 local) y a las `22:59Z`; cerrada a las `23:00Z` (24:00 local).
+  - Inicio 20:00 en verano: abierta a las `2026-07-15T18:00Z` (20:00 local, UTC+2) y cerrada a las `17:59Z`. La ventana sigue la hora local del clan.
+  - Inicio 22:00 (cruza la medianoche): abierta a las 23:30 y a la 01:59 locales del día siguiente; cerrada a las 02:00 y a las 21:00 locales.
+  - Un `now` con cualquier offset se evalúa por su instante.
+  - `new RaidWindow(TimeSpan.FromHours(24), madrid)` lanza.
 - [ ] **Step 2: Ejecutar** → FAIL.
-- [ ] **Step 3: Implementar `IsOpen`**: `var t = now.UtcDateTime.TimeOfDay; var end = (start + Duration)` módulo 24 h; abierta si `start <= t < end` o, cuando cruza la medianoche, si `t >= start || t < end`.
+- [ ] **Step 3: Implementar `IsOpen`**: `var t = TimeZoneInfo.ConvertTime(now, clanTimeZone).TimeOfDay`; el final es `(localStart + Duration)` módulo 24 h. Está abierta si `start <= t < end` o, cuando cruza la medianoche, si `t >= start || t < end`.
 - [ ] **Step 4: Ejecutar** → PASS.
 - [ ] **Step 5: Commit**: `git commit -m "feat(core): ventana diaria de asalto de 4 horas"`
 
@@ -194,7 +202,7 @@ public void Shipwreck_loses_everything_including_fruits(bool online) {
 - Test: `tests/Legado.Core.Tests/Dungeons/DungeonRulesTests.cs`, `tests/Legado.Core.Tests/Dungeons/WeeklyLockoutTests.cs`
 
 **Interfaces:**
-- Produces: `enum Difficulty { Basic, Normal, Max }`. `static bool DungeonRules.CanEnter(Difficulty d, int players, int npcs)`: un grupo tiene entre 1 y 6 miembros; Max exige `npcs == 0`. `static bool DungeonRules.CanDropFruit(bool storyDungeon, Difficulty d)`: true si es de historia o si la dificultad es Max. `sealed class WeeklyLockout { WeeklyLockout(DayOfWeek resetDay, TimeSpan resetTimeUtc); void RecordCompletion(string dungeonId, DateTimeOffset at); bool IsLocked(string dungeonId, DateTimeOffset now); }`.
+- Produces: `enum Difficulty { Basic, Normal, Max }`. `static bool DungeonRules.CanEnter(Difficulty d, int players, int npcs)`: un grupo tiene entre 1 y 6 miembros; Max exige `npcs == 0`. `static bool DungeonRules.CanDropFruit(bool storyDungeon, Difficulty d)`: true si es de historia o si la dificultad es Max. `static class Resets { const DayOfWeek WeeklyDay = DayOfWeek.Wednesday; static readonly TimeSpan TimeUtc = TimeSpan.FromHours(4); }` (el diario y el semanal a las 04:00 UTC). `sealed class WeeklyLockout { WeeklyLockout(); void RecordCompletion(string dungeonId, DateTimeOffset at); bool IsLocked(string dungeonId, DateTimeOffset now); }`, que usa `Resets`.
 
 - [ ] **Step 1: Tests que fallan**:
   - `CanEnter(Max, 5, 1)` es false.
@@ -203,9 +211,11 @@ public void Shipwreck_loses_everything_including_fruits(bool online) {
   - `CanEnter(Basic, 4, 3)` es false (son 7 miembros).
   - `CanEnter(Basic, 0, 0)` es false.
   - `CanDropFruit(false, Normal)` es false y `CanDropFruit(true, Basic)` es true.
-  - `WeeklyLockout(Wednesday, 05:00)`: completada el lunes, está bloqueada el martes y libre el miércoles a las 05:00. Completada en Basic, también bloquea Max, porque el bloqueo es por mazmorra y no por dificultad.
+  - Completada el lunes `2026-11-30T20:00Z`: bloqueada el miércoles `2026-12-02T03:59Z` y libre a las `04:00Z`.
+  - Completada el miércoles `2026-12-02T04:00Z`, justo en el reinicio: bloqueada hasta el miércoles siguiente a las 04:00Z.
+  - Completada en Basic, también bloquea Max, porque el bloqueo es por mazmorra y no por dificultad.
 - [ ] **Step 2: Ejecutar** → FAIL.
-- [ ] **Step 3: Implementar `IsLocked`**: calcular el siguiente reinicio estrictamente posterior a la última finalización y comparar con `now`. El día y la hora de reinicio son parámetros porque el GDD no los fija.
+- [ ] **Step 3: Implementar `IsLocked`**: calcular el primer reinicio (miércoles 04:00 UTC) estrictamente posterior a la última finalización y comparar con `now`.
 - [ ] **Step 4: Ejecutar** → PASS.
 - [ ] **Step 5: Commit**: `git commit -m "feat(core): acceso a mazmorras y bloqueo semanal"`
 
@@ -216,15 +226,18 @@ public void Shipwreck_loses_everything_including_fruits(bool online) {
 - Test: `tests/Legado.Core.Tests/Professions/ProfessionRulesTests.cs`
 
 **Interfaces:**
-- Produces: `enum Profession` con los 21 valores del GDD, §11: `Lumberjack, Miner, Fisher, Hunter, Herbalist, Diver, Blacksmith, Weaponsmith, LeatherAndCloth, Jeweler, Cook, Chemist, Medic, Mechanic, Shipwright, Architect, Mason, Cartographer, TreasureHunter, Navigator, Tamer`. `const int ProfessionRules.MaxPerCharacter = 3`. `static bool ProfessionRules.IsValidCombination(IReadOnlyCollection<Profession> ps, int fruitsEaten)`. `const double ProfessionRules.OfflineGainFactor = 0.001`. `static double ProfessionRules.OfflineGain(double activeGain)`.
+- Produces: `enum Profession` con los 21 valores del GDD, §11: `Lumberjack, Miner, Fisher, Hunter, Herbalist, Diver, Blacksmith, Weaponsmith, LeatherAndCloth, Jeweler, Cook, Chemist, Medic, Mechanic, Shipwright, Architect, Mason, Cartographer, TreasureHunter, Navigator, Tamer`. `const int ProfessionRules.MaxPerCharacter = 3`. `static bool ProfessionRules.IsValidCombination(IReadOnlyCollection<Profession> ps)` (como mucho 3 y sin repetidos). `static bool ProfessionRules.IsActive(Profession p, int fruitsEaten)`: Diver está inactivo (congelado) si `fruitsEaten > 0`; el resto siempre está activo. `static bool ProfessionRules.CanGainSkill(Profession p, int fruitsEaten)`, igual que `IsActive`. `const double ProfessionRules.OfflineGainFactor = 0.001`. `static double ProfessionRules.OfflineGain(double activeGain)`.
 
 - [ ] **Step 1: Tests que fallan**:
   - `Enum.GetValues<Profession>().Length == 21`.
   - Tres oficios distintos son válidos; cuatro no; uno repetido no.
-  - `[Diver]` con `fruitsEaten: 1` no es válido; con 0 sí.
+  - `[Diver, Fisher, Cook]` sigue siendo una combinación válida aunque el personaje tenga frutas: el hueco sigue ocupado.
+  - `IsActive(Diver, 0)` es true; `IsActive(Diver, 1)` es false; `IsActive(Fisher, 3)` es true.
+  - Reactivación: `IsActive(Diver, 0)` vuelve a ser true después de pasar de 2 frutas a 0.
+  - `CanGainSkill(Diver, 1)` es false.
   - `OfflineGain(1000) == 1.0`, con tolerancia de 1e-9.
 - [ ] **Step 2: Ejecutar** → FAIL.
-- [ ] **Step 3: Implementar.** Qué pasa cuando un buzo come fruta es un hueco del GDD: aquí solo se valida, no se resuelve.
+- [ ] **Step 3: Implementar.** El nivel del oficio congelado no se toca: el congelado es solo el resultado de `IsActive` y `CanGainSkill`. El aviso antes de comer fruta es del cliente y está localizado.
 - [ ] **Step 4: Ejecutar** → PASS.
 - [ ] **Step 5: Commit**: `git commit -m "feat(core): límite de oficios y ganancia desconectado"`
 

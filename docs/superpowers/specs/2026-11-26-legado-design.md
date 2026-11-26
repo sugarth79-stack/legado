@@ -68,7 +68,7 @@ Clases (11): Espadachín, Luchador, Pateador, Tirador, Artillero, Inventor, Torm
 - En zona PvP cualquiera saquea cualquier cadáver. Cadáver: **30 minutos** máximo.
 - Personaje desconectado vigilando: muere igual y pierde lo que lleva.
 
-Renombre: suma por mazmorras (difíciles más), tiempo sin morir y kills PvP. Recompensa por cabeza según renombre, la cobra quien mata, en doblones. Cada muerte resta **20 %** del renombre. Cartel "Se busca" + tablón en Liberty. **Cinco rangos** con icono de color (gris a dorado).
+Renombre: suma por mazmorras (difíciles más), tiempo sin morir y kills PvP. Recompensa por cabeza según renombre, la cobra quien mata, en doblones. Cada muerte resta **20 %** del renombre. Cartel "Se busca" + tablón en Liberty. **Cinco rangos** con icono de color por posición en el servidor, recalculados cada día a las 04:00 UTC: dorado (1 % superior), morado (hasta 10 %), azul (hasta 25 %), verde (hasta 50 %), gris (resto).
 
 ## 6. Frutas del diablo
 
@@ -86,7 +86,9 @@ Renombre: suma por mazmorras (difíciles más), tiempo sin morir y kills PvP. Re
 | Aguas Bravas | 50-70 | 80 % infrecuente, 20 % rara |
 | Mar del Rey Ahogado | 70-80 | 80 % rara, 20 % mítica |
 
-Desventajas: debilidad al agua (no nada, se hunde, pierde poder mojado); naufragio = pierde todo incluida la fruta; hierro abisal anula poderes; no puede ser buzo y pesca peor; desgaste (más hambre/cansancio).
+Desventajas: debilidad al agua (no nada, se hunde, pierde poder mojado); naufragio = pierde todo incluida la fruta; hierro abisal anula poderes; no puede ejercer de buzo y pesca peor; desgaste (más hambre/cansancio).
+
+Buzo que come fruta: el juego avisa antes; si acepta, el oficio de buzo queda **congelado** (conserva su nivel y su hueco, no se usa ni sube). Puede cambiarlo por otro oficio. Si pierde todas sus frutas, se reactiva tal como estaba.
 
 ## 7. Tripulación, clan y NPC
 
@@ -109,11 +111,11 @@ Mazmorras de historia (dentro de la aventura) y del mundo (fuera, 3 dificultades
 | Media | Jugadores y/o NPC | Equipo mejor, fragmentos de fruta |
 | Máxima | Solo grupos de jugadores | Mejor equipo + frutas |
 
-Cada mazmorra se completa **una vez por semana** en cualquier dificultad. Jefes originales inspirados en One Piece. Vías sin clan: buscador de grupo; fragmentos que combina el químico (solo común o infrecuente); tesoros enterrados (fruta común, muy rara); jefes de mundo (fruta a quien más contribuye).
+Cada mazmorra se completa **una vez por semana** en cualquier dificultad. Reinicio semanal: **miércoles 04:00 UTC**. Jefes originales inspirados en One Piece. Vías sin clan: buscador de grupo; fragmentos que combina el químico (solo común o infrecuente); tesoros enterrados (fruta común, muy rara); jefes de mundo (fruta a quien más contribuye).
 
 ## 10. Bases y asaltos
 
-Todo en el Mar del Rey Ahogado: casas en la isla de facción (segura), fortalezas de clan en islas libres. Ventanas de asalto de **4 horas**, **todos los días**, franja elegida por el clan. Defienden los desconectados asignados. Hierro abisal en muros.
+Todo en el Mar del Rey Ahogado: casas en la isla de facción (segura), fortalezas de clan en islas libres. Ventanas de asalto de **4 horas**, **todos los días**, franja elegida por el clan **en su propia zona horaria** (fijada al crear el clan; sigue el horario de verano). Cada jugador la ve en su hora local; el servidor guarda UTC. Defienden los desconectados asignados. Hierro abisal en muros.
 
 ## 11. Oficios, monedas y mercado
 
