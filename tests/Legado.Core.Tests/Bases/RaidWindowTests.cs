@@ -107,6 +107,39 @@ public class RaidWindowTests
         Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 25, 4, 30, 0, TimeSpan.Zero)));
     }
 
+    // Inicio 00:30 local el 2026-03-29 = 23:30Z del día 28; el intervalo cruza el adelanto de reloj.
+    [Fact]
+    public void SpringForward_Start0030_SpanCrossingTransition_LastsFourRealHours()
+    {
+        var w = new RaidWindow(new TimeSpan(0, 30, 0), Madrid);
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 28, 23, 29, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 28, 23, 30, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 3, 29, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 29, 3, 30, 0, TimeSpan.Zero)));
+    }
+
+    // Inicio 02:00 local el 2026-10-25: primer instante del solape, primera aparición = 00:00Z.
+    [Fact]
+    public void FallBack_Start02_FirstInstantOfOverlap_UsesFirstOccurrence()
+    {
+        var w = new RaidWindow(TimeSpan.FromHours(2), Madrid);
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 24, 23, 59, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 25, 0, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 25, 3, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 25, 4, 0, 0, TimeSpan.Zero)));
+    }
+
+    // Zona sin cambio de hora y ventana que cruza la medianoche.
+    [Fact]
+    public void Utc_Start21_CrossingMidnight_LastsFourHours()
+    {
+        var w = new RaidWindow(TimeSpan.FromHours(21), TimeZoneInfo.Utc);
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 6, 10, 21, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 6, 11, 0, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 6, 11, 1, 0, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 6, 10, 20, 59, 0, TimeSpan.Zero)));
+    }
+
     [Fact]
     public void Now_IsEvaluatedByInstantRegardlessOfOffset()
     {

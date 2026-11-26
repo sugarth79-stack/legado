@@ -3,7 +3,7 @@ using System;
 namespace Legado.Core.Bases
 {
     /// <summary>
-    /// Ventana diaria de asalto de 4 horas, definida por su hora de inicio en la zona horaria del clan.
+    /// Ventana diaria de asalto de 4 horas reales, definida por su hora de inicio en la zona horaria del clan.
     /// </summary>
     public sealed class RaidWindow
     {
