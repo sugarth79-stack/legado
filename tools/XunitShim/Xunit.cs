@@ -59,6 +59,9 @@ namespace Xunit
         public static T Single<T>(IEnumerable<T> c) { var l = c.ToList(); if (l.Count != 1) throw Fail($"Assert.Single() Failure: {l.Count} elementos"); return l[0]; }
         public static void Contains<T>(T expected, IEnumerable<T> c) { if (!c.Contains(expected)) throw Fail($"Assert.Contains() Failure: {expected}"); }
         public static void DoesNotContain<T>(T expected, IEnumerable<T> c) { if (c.Contains(expected)) throw Fail($"Assert.DoesNotContain() Failure: {expected}"); }
+        public static void Contains<T>(IEnumerable<T> c, Predicate<T> filter) { if (!c.Any(x => filter(x))) throw Fail("Assert.Contains() Failure: ningún elemento cumple el filtro"); }
+        public static void DoesNotContain<T>(IEnumerable<T> c, Predicate<T> filter) { if (c.Any(x => filter(x))) throw Fail("Assert.DoesNotContain() Failure: algún elemento cumple el filtro"); }
+        public static T Single<T>(IEnumerable<T> c, Predicate<T> filter) { var l = c.Where(x => filter(x)).ToList(); if (l.Count != 1) throw Fail($"Assert.Single() Failure: {l.Count} elementos"); return l[0]; }
         public static void Contains(string sub, string? s) { if (s == null || !s.Contains(sub)) throw Fail($"Assert.Contains() Failure: '{sub}'"); }
         public static T IsType<T>(object? o) { if (o is null || o.GetType() != typeof(T)) throw Fail($"Assert.IsType() Failure: {o?.GetType()}"); return (T)o; }
         public static T IsAssignableFrom<T>(object? o) { if (o is not T t) throw Fail($"Assert.IsAssignableFrom() Failure: {o?.GetType()}"); return t; }

@@ -12,14 +12,15 @@ AppDomain.CurrentDomain.AssemblyResolve += (_, e) =>
     return File.Exists(p) ? Assembly.LoadFrom(p) : null;
 };
 var asm = Assembly.LoadFrom(asmPath);
-int passed = 0, failed = 0;
-foreach (var type in asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract).OrderBy(t => t.FullName))
+int passed = 0, failed = 0, skipped = 0;
+foreach (var type in asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsPublic).OrderBy(t => t.FullName))
 foreach (var m in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static).OrderBy(m => m.Name))
 {
     var fact = m.GetCustomAttribute<FactAttribute>();
     if (fact == null) continue;
     var name = $"{type.FullName}.{m.Name}";
     if (filter != null && !name.Contains(filter)) continue;
+    if (!string.IsNullOrEmpty(fact.Skip)) { Console.WriteLine($"[SKIP] {name}: {fact.Skip}"); skipped++; continue; }
     var cases = fact is TheoryAttribute
         ? m.GetCustomAttributes<InlineDataAttribute>().Select(d => d.Data).ToList()
         : new List<object?[]> { Array.Empty<object?>() };
@@ -46,6 +47,7 @@ foreach (var m in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | 
     }
 }
 Console.WriteLine($"Total: {passed + failed}, Passed: {passed}, Failed: {failed}");
+Console.WriteLine($"Skipped: {skipped}");
 return failed == 0 && passed > 0 ? 0 : 1;
 
 static object? Coerce(object? v, Type t)
@@ -53,6 +55,28 @@ static object? Coerce(object? v, Type t)
     if (v == null) return null;
     var target = Nullable.GetUnderlyingType(t) ?? t;
     if (target.IsInstanceOfType(v)) return v;
-    if (target.IsEnum) return Enum.ToObject(target, v);
-    return Convert.ChangeType(v, target, System.Globalization.CultureInfo.InvariantCulture);
+    if (target.IsEnum && v.GetType().IsPrimitive && v.GetType() != typeof(bool) && v.GetType() != typeof(char))
+        return Enum.ToObject(target, v);
+    if (IsImplicitNumericWidening(v.GetType(), target))
+        return Convert.ChangeType(v, target, System.Globalization.CultureInfo.InvariantCulture);
+    throw new XunitException($"No se puede convertir {v.GetType().Name} a {t.Name} (xUnit real lo rechazaría)");
+}
+
+// Conversiones numéricas implícitas de C# (ECMA-334 §10.2.3).
+static bool IsImplicitNumericWidening(Type from, Type to)
+{
+    var map = new Dictionary<Type, Type[]>
+    {
+        [typeof(sbyte)] = new[] { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(byte)] = new[] { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(short)] = new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(ushort)] = new[] { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(int)] = new[] { typeof(long), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(uint)] = new[] { typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(long)] = new[] { typeof(float), typeof(double), typeof(decimal) },
+        [typeof(ulong)] = new[] { typeof(float), typeof(double), typeof(decimal) },
+        [typeof(char)] = new[] { typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) },
+        [typeof(float)] = new[] { typeof(double) },
+    };
+    return map.TryGetValue(from, out var targets) && Array.IndexOf(targets, to) >= 0;
 }
