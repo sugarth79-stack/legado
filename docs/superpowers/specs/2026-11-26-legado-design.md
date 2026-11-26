@@ -68,7 +68,7 @@ Clases (11): Espadachín, Luchador, Pateador, Tirador, Artillero, Inventor, Torm
 - En zona PvP cualquiera saquea cualquier cadáver. Cadáver: **30 minutos** máximo.
 - Personaje desconectado vigilando: muere igual y pierde lo que lleva.
 
-Renombre: suma por mazmorras (difíciles más), tiempo sin morir y kills PvP. Recompensa por cabeza según renombre, la cobra quien mata, en doblones. Cada muerte resta **20 %** del renombre. Cartel "Se busca" + tablón en Liberty. **Cinco rangos** con icono de color por posición en el servidor, recalculados cada día a las 04:00 UTC: dorado (1 % superior), morado (hasta 10 %), azul (hasta 25 %), verde (hasta 50 %), gris (resto).
+Renombre: suma por mazmorras (difíciles más), tiempo sin morir y kills PvP. Recompensa por cabeza según renombre, la cobra quien mata, en doblones. Cada muerte resta **20 %** del renombre. Cartel "Se busca" + tablón en Liberty. **Cinco rangos** con icono de color por posición en el servidor, recalculados cada día a las 04:00 UTC: dorado (1 % superior, y el número 1 del servidor siempre), morado (hasta 10 %), azul (hasta 25 %), verde (hasta 50 %), gris (resto).
 
 ## 6. Frutas del diablo
 
@@ -115,7 +115,7 @@ Cada mazmorra se completa **una vez por semana** en cualquier dificultad. Reinic
 
 ## 10. Bases y asaltos
 
-Todo en el Mar del Rey Ahogado: casas en la isla de facción (segura), fortalezas de clan en islas libres. Ventanas de asalto de **4 horas**, **todos los días**, franja elegida por el clan **en su propia zona horaria** (fijada al crear el clan; sigue el horario de verano). Cada jugador la ve en su hora local; el servidor guarda UTC. Defienden los desconectados asignados. Hierro abisal en muros.
+Todo en el Mar del Rey Ahogado: casas en la isla de facción (segura), fortalezas de clan en islas libres. Ventanas de asalto de **4 horas**, **todos los días**, franja elegida por el clan **en su propia zona horaria** (fijada al crear el clan; sigue el horario de verano). Dura siempre 4 horas reales, también el día del cambio de hora: si la hora de inicio no existe ese día, empieza en la primera hora válida; si ocurre dos veces, cuenta la primera. Cada jugador la ve en su hora local; el servidor guarda UTC. Defienden los desconectados asignados. Hierro abisal en muros.
 
 ## 11. Oficios, monedas y mercado
 

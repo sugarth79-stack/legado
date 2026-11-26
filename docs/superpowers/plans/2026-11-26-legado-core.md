@@ -18,9 +18,9 @@
 - Nivel máximo: 80. Huecos de fruta: niveles 10, 30, 50, 70, 80 (máximo 5).
 - Rareza por zona: Mar de facción 100 % común; La Garganta 80 % común / 20 % infrecuente; Aguas Bravas 80 % infrecuente / 20 % rara; Mar del Rey Ahogado 80 % rara / 20 % mítica.
 - Cadáver PvE: 30 minutos. Penalización de renombre por muerte: 20 %.
-- Ventana de asalto: 4 horas, todos los días, inicio elegido por el clan **en la zona horaria del clan** (sigue los cambios de horario de verano).
+- Ventana de asalto: 4 horas, todos los días, inicio elegido por el clan **en la zona horaria del clan** (sigue los cambios de horario de verano), siempre 4 horas reales también en los días de cambio de hora (decisión de Nacho del 26-11-2026, posterior a este plan).
 - Reinicio semanal de mazmorras: **miércoles 04:00 UTC**. Reinicio diario (recálculo de rangos de renombre): **04:00 UTC**.
-- Rangos de renombre por posición en el servidor: dorado el 1 % superior, morado hasta el 10 %, azul hasta el 25 %, verde hasta el 50 % y gris el resto.
+- Rangos de renombre por posición en el servidor: el número 1 siempre es dorado; además, dorado el 1 % superior, morado hasta el 10 %, azul hasta el 25 %, verde hasta el 50 % y gris el resto.
 - Buzo con frutas: el oficio queda **congelado** (conserva su nivel, no se usa ni sube) y se reactiva al quedarse sin frutas.
 - Tripulación máxima: 12. Clan máximo: 60. Grupo de mazmorra máximo: 6. Oficios por personaje: 3.
 - Ganancia de profesión desconectado: 0,001 × ganancia activa.
