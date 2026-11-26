@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Sustituto mínimo de xUnit para entornos sin nuget.org. En CI se usa xUnit real. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Xunit</RootNamespace>
+  </PropertyGroup>
+</Project>
