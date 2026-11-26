@@ -27,7 +27,11 @@ namespace Legado.Core.Bases
             _clanTimeZone = clanTimeZone;
         }
 
-        /// <summary>Indica si la ventana está abierta en el instante dado, evaluado en la hora local del clan.</summary>
+        /// <summary>
+        /// Indica si la ventana está abierta en el instante dado, evaluado en la hora local del clan.
+        /// La ventana sigue el reloj de pared del clan, así que en los días de cambio de hora
+        /// puede durar 3 h (adelanto) o 5 h (retraso) reales.
+        /// </summary>
         public bool IsOpen(DateTimeOffset now)
         {
             var t = TimeZoneInfo.ConvertTime(now, _clanTimeZone).TimeOfDay;

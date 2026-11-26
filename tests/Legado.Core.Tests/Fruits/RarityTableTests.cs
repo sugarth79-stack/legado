@@ -13,6 +13,7 @@ public class RarityTableTests
     [InlineData(Zone.WildWaters, 79, Rarity.Uncommon)]
     [InlineData(Zone.WildWaters, 80, Rarity.Rare)]
     [InlineData(Zone.DrownedKingsSea, 79, Rarity.Rare)]
+    [InlineData(Zone.DrownedKingsSea, 80, Rarity.Mythic)]
     [InlineData(Zone.DrownedKingsSea, 99, Rarity.Mythic)]
     public void Roll_maps_percent_to_rarity(Zone zone, int roll, Rarity expected)
         => Assert.Equal(expected, RarityTable.Roll(zone, new FixedRandom(roll)));

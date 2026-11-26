@@ -53,6 +53,41 @@ public class RaidWindowTests
     }
 
     [Fact]
+    public void Winter_Start10_NonCrossing_OpensAt10AndClosesAt14Local()
+    {
+        var w = new RaidWindow(TimeSpan.FromHours(10), Madrid);
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 1, 15, 8, 59, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 1, 15, 9, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 1, 15, 12, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 1, 15, 13, 0, 0, TimeSpan.Zero)));
+    }
+
+    // Fija el comportamiento actual (reloj de pared del clan); pendiente de decisión de diseño.
+    // 2026-03-29: a las 01:00Z el reloj salta de 02:00 a 03:00 (UTC+1 -> UTC+2).
+    // Ventana local 01:00-05:00 = 00:00Z-03:00Z, es decir, 3 horas reales.
+    [Fact]
+    public void SpringForward_Start01_WindowLastsThreeRealHours()
+    {
+        var w = new RaidWindow(TimeSpan.FromHours(1), Madrid);
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 28, 23, 59, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 0, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 3, 29, 2, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 3, 29, 3, 0, 0, TimeSpan.Zero)));
+    }
+
+    // 2026-10-25: a las 01:00Z el reloj retrocede de 03:00 a 02:00 (UTC+2 -> UTC+1).
+    // Ventana local 01:00-05:00 = 23:00Z (día 24) - 04:00Z, es decir, 5 horas reales.
+    [Fact]
+    public void FallBack_Start01_WindowLastsFiveRealHours()
+    {
+        var w = new RaidWindow(TimeSpan.FromHours(1), Madrid);
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 24, 22, 59, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 24, 23, 0, 0, TimeSpan.Zero)));
+        Assert.True(w.IsOpen(new DateTimeOffset(2026, 10, 25, 3, 59, 0, TimeSpan.Zero)));
+        Assert.False(w.IsOpen(new DateTimeOffset(2026, 10, 25, 4, 0, 0, TimeSpan.Zero)));
+    }
+
+    [Fact]
     public void Now_IsEvaluatedByInstantRegardlessOfOffset()
     {
         var w = new RaidWindow(TimeSpan.FromHours(20), Madrid);

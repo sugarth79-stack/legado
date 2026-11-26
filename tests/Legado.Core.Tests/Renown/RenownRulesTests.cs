@@ -22,6 +22,14 @@ public class RenownRulesTests
     public void Rank_uses_inclusive_top_percentage_thresholds(int position, RenownRank expected)
         => Assert.Equal(expected, RenownRules.Rank(position, 1000));
 
+    // Fija el comportamiento actual con poblaciones pequeñas; pendiente de decisión de diseño.
+    [Theory]
+    [InlineData(1, 8, RenownRank.Blue)]
+    [InlineData(1, 1, RenownRank.Gray)]
+    [InlineData(1, 100, RenownRank.Gold)]
+    public void Rank_small_population_pins_current_behavior(int position, int population, RenownRank expected)
+        => Assert.Equal(expected, RenownRules.Rank(position, population));
+
     [Theory]
     [InlineData(0, 10)] [InlineData(11, 10)] [InlineData(1, 0)]
     public void Rank_rejects_invalid_arguments(int position, int population)
