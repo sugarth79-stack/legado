@@ -2,7 +2,7 @@ namespace Legado.Core.Fruits
 {
     public interface IRandomSource
     {
-        /// <summary>Returns an integer percentage in the range 0-99 inclusive.</summary>
+        /// <summary>Devuelve un porcentaje entero en el rango 0-99, ambos inclusive.</summary>
         int NextPercent();
     }
 }

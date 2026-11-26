@@ -11,7 +11,7 @@ namespace Legado.Core.Fruits
 
             var percent = rng.NextPercent();
             if (percent < 0 || percent > 99)
-                throw new ArgumentOutOfRangeException(nameof(rng), percent, "NextPercent must return a value between 0 and 99.");
+                throw new ArgumentOutOfRangeException(nameof(rng), percent, "NextPercent debe devolver un valor entre 0 y 99.");
 
             var (low, high, highFromPercent) = Entry(zone);
             return percent >= highFromPercent ? high : low;
