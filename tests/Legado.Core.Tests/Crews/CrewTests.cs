@@ -13,6 +13,10 @@ public class CrewTests
         => Assert.Empty(new Crew(capacity).Members);
 
     [Fact]
+    public void Members_is_not_castable_to_list()
+        => Assert.False(new Crew(2).Members is List<CrewMember>);
+
+    [Fact]
     public void AddPlayer_with_free_slot_joins()
     {
         var crew = new Crew(3);
@@ -33,10 +37,10 @@ public class CrewTests
         Assert.Equal(JoinResult.ReplacedNpc, crew.AddPlayer(new PlayerMember("p1")));
 
         Assert.Equal(3, crew.Members.Count);
-        Assert.Equal(1, crew.Members.OfType<PlayerMember>().Count());
-        Assert.False(crew.Members.Any(m => m.Id == "n3"));
-        Assert.True(crew.Members.Any(m => m.Id == "n1"));
-        Assert.True(crew.Members.Any(m => m.Id == "n2"));
+        Assert.Single(crew.Members.OfType<PlayerMember>());
+        Assert.DoesNotContain(crew.Members, m => m.Id == "n3");
+        Assert.Contains(crew.Members, m => m.Id == "n1");
+        Assert.Contains(crew.Members, m => m.Id == "n2");
     }
 
     [Fact]
@@ -49,8 +53,8 @@ public class CrewTests
 
         Assert.Equal(JoinResult.ReplacedNpc, crew.AddPlayer(new PlayerMember("p2")));
 
-        Assert.False(crew.Members.Any(m => m.Id == "n2"));
-        Assert.True(crew.Members.Any(m => m.Id == "n1"));
+        Assert.DoesNotContain(crew.Members, m => m.Id == "n2");
+        Assert.Contains(crew.Members, m => m.Id == "n1");
         Assert.Equal(3, crew.Members.Count);
     }
 
@@ -63,7 +67,7 @@ public class CrewTests
 
         Assert.Equal(JoinResult.Full, crew.AddPlayer(new PlayerMember("p12")));
         Assert.Equal(12, crew.Members.Count);
-        Assert.False(crew.Members.Any(m => m.Id == "p12"));
+        Assert.DoesNotContain(crew.Members, m => m.Id == "p12");
     }
 
     [Fact]

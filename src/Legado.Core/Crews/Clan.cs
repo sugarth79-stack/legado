@@ -16,6 +16,8 @@ namespace Legado.Core.Crews
         public bool TryAdd(string playerId)
         {
             if (playerId is null) throw new ArgumentNullException(nameof(playerId));
+            if (string.IsNullOrWhiteSpace(playerId))
+                throw new ArgumentException("El id del jugador no puede estar vacío.", nameof(playerId));
             if (_members.Count >= MaxMembers) return false;
             return _members.Add(playerId);
         }

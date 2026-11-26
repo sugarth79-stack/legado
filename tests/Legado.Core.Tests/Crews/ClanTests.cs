@@ -25,6 +25,12 @@ public class ClanTests
         Assert.Equal(1, clan.Count);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Empty_or_whitespace_id_throws(string id)
+        => Assert.Throws<ArgumentException>(() => new Clan().TryAdd(id));
+
     [Fact]
     public void Null_id_throws()
         => Assert.Throws<ArgumentNullException>(() => new Clan().TryAdd(null!));

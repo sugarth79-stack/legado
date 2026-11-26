@@ -21,6 +21,7 @@ namespace Legado.Core.Crews
 
         private readonly int _capacity;
         private readonly List<CrewMember> _members = new List<CrewMember>();
+        private readonly IReadOnlyList<CrewMember> _membersView;
 
         public Crew(int capacity)
         {
@@ -28,9 +29,10 @@ namespace Legado.Core.Crews
                 throw new ArgumentOutOfRangeException(nameof(capacity), capacity,
                     "La capacidad debe estar entre 1 y " + MaxCapacity + ".");
             _capacity = capacity;
+            _membersView = _members.AsReadOnly();
         }
 
-        public IReadOnlyList<CrewMember> Members => _members;
+        public IReadOnlyList<CrewMember> Members => _membersView;
 
         /// <summary>Añade un NPC si hay hueco y su id no está ya en la tripulación.</summary>
         public bool TryAddNpc(NpcMember npc)

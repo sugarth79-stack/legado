@@ -5,7 +5,7 @@ namespace Legado.Core.Dungeons
     /// <summary>Reglas de acceso y botín de las mazmorras.</summary>
     public static class DungeonRules
     {
-        private const int MaxGroupSize = 6;
+        public const int MaxGroupSize = 6;
 
         /// <summary>
         /// Indica si un grupo puede entrar: entre 1 y 6 miembros (jugadores más NPC);

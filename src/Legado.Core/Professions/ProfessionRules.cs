@@ -46,8 +46,8 @@ namespace Legado.Core.Professions
         /// <summary>Ganancia obtenida estando desconectado a partir de la ganancia activa.</summary>
         public static double OfflineGain(double activeGain)
         {
-            if (activeGain < 0)
-                throw new ArgumentOutOfRangeException(nameof(activeGain), activeGain, "La ganancia activa no puede ser negativa.");
+            if (double.IsNaN(activeGain) || double.IsInfinity(activeGain) || activeGain < 0)
+                throw new ArgumentOutOfRangeException(nameof(activeGain), activeGain, "La ganancia activa debe ser un número finito no negativo.");
             return activeGain * OfflineGainFactor;
         }
     }

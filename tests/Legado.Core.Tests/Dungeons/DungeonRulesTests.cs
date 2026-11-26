@@ -5,6 +5,9 @@ namespace Legado.Core.Tests.Dungeons;
 public class DungeonRulesTests
 {
     [Fact]
+    public void MaxGroupSize_IsSix() => Assert.Equal(6, DungeonRules.MaxGroupSize);
+
+    [Fact]
     public void CanEnter_Max_WithNpc_IsFalse() =>
         Assert.False(DungeonRules.CanEnter(Difficulty.Max, 5, 1));
 

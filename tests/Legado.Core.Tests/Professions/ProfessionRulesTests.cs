@@ -4,6 +4,13 @@ namespace Legado.Core.Tests.Professions;
 
 public class ProfessionRulesTests
 {
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void OfflineGain_rejects_non_finite(double gain)
+        => Assert.Throws<ArgumentOutOfRangeException>(() => ProfessionRules.OfflineGain(gain));
+
     [Fact]
     public void Profession_has_21_values()
         => Assert.Equal(21, Enum.GetValues<Profession>().Length);

@@ -35,6 +35,10 @@ public class DeathRulesTests
     public void Pve_in_pvp_zone_corpse_lootable_by_anyone()
         => Assert.True(DeathRules.Resolve(new(DeathCause.Monster, true, InPvpZone: true)).LootableByAnyone);
 
+    [Fact]
+    public void Shipwreck_in_pvp_zone_is_not_lootable_by_anyone()
+        => Assert.False(DeathRules.Resolve(new(DeathCause.Shipwreck, true, InPvpZone: true)).LootableByAnyone);
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
