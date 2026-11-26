@@ -25,7 +25,8 @@ namespace Legado.Core.Renown
 
         /// <summary>
         /// Rango según la posición (1 = más renombre del servidor) y la población.
-        /// Umbrales inclusivos sobre position / population: Oro 1 %, Púrpura 10 %, Azul 25 %, Verde 50 %.
+        /// La posición 1 es siempre Oro, sea cual sea la población.
+        /// El resto usa umbrales inclusivos sobre position / population: Oro 1 %, Púrpura 10 %, Azul 25 %, Verde 50 %.
         /// </summary>
         public static RenownRank Rank(int position, int population)
         {
@@ -37,7 +38,7 @@ namespace Legado.Core.Renown
             // Aritmética entera para evitar errores de coma flotante en los límites.
             long pos = position;
             long pop = population;
-            if (pos * 100 <= pop) return RenownRank.Gold;
+            if (pos == 1 || pos * 100 <= pop) return RenownRank.Gold;
             if (pos * 10 <= pop) return RenownRank.Purple;
             if (pos * 4 <= pop) return RenownRank.Blue;
             if (pos * 2 <= pop) return RenownRank.Green;

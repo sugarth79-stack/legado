@@ -22,12 +22,21 @@ public class RenownRulesTests
     public void Rank_uses_inclusive_top_percentage_thresholds(int position, RenownRank expected)
         => Assert.Equal(expected, RenownRules.Rank(position, 1000));
 
-    // Fija el comportamiento actual con poblaciones pequeñas; pendiente de decisión de diseño.
+    // Decisión de diseño: la posición 1 es siempre Oro, sea cual sea la población.
     [Theory]
-    [InlineData(1, 8, RenownRank.Blue)]
-    [InlineData(1, 1, RenownRank.Gray)]
+    [InlineData(1, 8, RenownRank.Gold)]
+    [InlineData(1, 1, RenownRank.Gold)]
     [InlineData(1, 100, RenownRank.Gold)]
-    public void Rank_small_population_pins_current_behavior(int position, int population, RenownRank expected)
+    public void Rank_position_one_is_always_gold(int position, int population, RenownRank expected)
+        => Assert.Equal(expected, RenownRules.Rank(position, population));
+
+    [Theory]
+    [InlineData(2, 8, RenownRank.Blue)]
+    [InlineData(3, 8, RenownRank.Green)]
+    [InlineData(4, 8, RenownRank.Green)]
+    [InlineData(5, 8, RenownRank.Gray)]
+    [InlineData(8, 8, RenownRank.Gray)]
+    public void Rank_small_population_keeps_percentile_rule_after_first(int position, int population, RenownRank expected)
         => Assert.Equal(expected, RenownRules.Rank(position, population));
 
     [Theory]
